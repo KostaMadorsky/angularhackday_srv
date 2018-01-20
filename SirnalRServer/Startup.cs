@@ -25,7 +25,14 @@ namespace SirnalRServer
         {
             services.AddMvc();
             services.AddSignalR();
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder => builder
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                );
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Swashbuckle.AspNetCore.Swagger.Info { Title = "Api desc", Version = "v1.0" });
@@ -40,7 +47,7 @@ namespace SirnalRServer
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseCors("*");
+            app.UseCors("AllowAll");
             app.UseMvc();
 
             app.UseSignalR(r => r.MapHub<ChatHub>("chat"));
