@@ -7,37 +7,23 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace SirnalRServer.Controllers
 {
-    public class Message
-    {
-        public string text { get; set; }
-        public string author { get; set; }
-    }
-
-    public class Input
-    {
-        public string msg { get; set; }
-        public string author { get; set; }
-        public string room { get; set; }
-    }
+    
 
     [Route("api/messages")]
     [Produces("application/json")]
     public class ChatController : Controller
     {
-        private readonly IHubContext<ChatHub> ctx;
+        private readonly IHubContext<ChatHub> _ctx;
 
         public ChatController(IHubContext<ChatHub> ctx)
         {
-            this.ctx = ctx;
+            this._ctx = ctx;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]Input input)
+        public async Task<IActionResult> Post([FromBody]HubMessage input)
         {
-            await ctx.Clients.Group(input.room).InvokeAsync("messageReceived", new Message {
-                text = input.msg,
-                author = input.author
-            });
+            await _ctx.Clients.Group(input.author.room).InvokeAsync("onMessageReceived", input);
 
             return Ok();
         }
